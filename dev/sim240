@@ -21,6 +21,7 @@ from re import match, IGNORECASE
 from random import randint
 import signal
 import readline
+import re
 
 # supress .pyc file - speedup doesn't justify cleanup
 sys.dont_write_bytecode = True;
@@ -597,26 +598,26 @@ def init_p18240():
 
 # initalizes the memory, sets memory locations in list file
 def init_memory():
-   global memory;
-   memory = {};
-   int_max = (1 << 16) - 1; # 16-bit ints
-   global randomize_memory;
-   if (randomize_memory):
-      for addr in xrange(0, 1 << 16, 2):
-         data = to_4_digit_uc_hex(randint(0, int_max));
-         addr = to_4_digit_uc_hex(addr);
-         set_memory(addr, data, 0);
+    global memory;
+    memory = {};
+    int_max = (1 << 16) - 1; # 16-bit ints
+    global randomize_memory;
+    for addr in xrange(0, 1 << 16, 2):
+        data_num = randint(0, int_max) if randomize_memory else 0;
+        data = to_4_digit_uc_hex(data_num);
+        addr = to_4_digit_uc_hex(addr);
+        set_memory(addr, data, 0);
 
-   # memory is zero if not defined in dictionary
-   global list_lines;
-   for line in list_lines:
-      arr = line.split(" ");
-      if (len(arr) < 2):
-          print("Fatal Error: File format not recognized");
-          exit();
-      addr = arr[0];
-      data = arr[1];
-      memory[addr] = [data.lower(),1];
+    # memory is zero if not defined in dictionary
+    global list_lines;
+    for line in list_lines:
+        arr = line.split(" ");
+        if (len(arr) < 2):
+            print("Fatal Error: File format not recognized");
+            exit();
+        addr = arr[0];
+        data = arr[1];
+        memory[addr] = [data.lower(),1];
 
 # Run simulator for n instructions
 # If n is undefined, run indefinitely
@@ -911,8 +912,8 @@ def check_state(state_file):
     try:
         fh = open(state_file, "r");
     except:
-       tran_print("Failed to open state file");
-      return;
+        tran_print("Failed to open state file");
+        return;
     has_diffs = False;
     lines = fh.readlines();
     while (not lines[0].startswith("State")): # skipping breakpoints
@@ -929,18 +930,27 @@ def check_state(state_file):
             has_diffs = True;
             tran_print(labels[i] + " differs: sim = " + sim_state[i]
                     + ", file = " + file_state[i]);
-            lines.pop(0); # removes newline
+    lines.pop(0); # removes newline
     lines.pop(0); # removes "Memory:"
     for line in lines:
-        addr = line[4:8].upper();
-        file_val = line[11:15].upper();
-        sim_val = memory[addr][0].upper();
+        # Line format:
+        # mem[xxxx:xxxx]: xxxx INSTR x x x
+        # We only care about the addr and the number
+        mem_arr = re.split('[\[ :\]]', line)
+        mem_arr = list(filter(None, mem_arr))
+        if len(mem_arr) < 4:
+            tran_print("Error parsing memory in state file")
+            return
+        addr_lo = mem_arr[1].upper()
+        addr_hi = mem_arr[2].upper()
+        file_val = mem_arr[3].upper()
+        sim_val = memory[addr_lo][0].upper();
         if (file_val != sim_val):
             has_diffs = True;
-            tran_print("Mem[" + addr + "] differs: sim = " + sim_val +
-                    ", file = " + file_val);
-            if not has_diffs:
-                tran_print("State matches reference file!")
+            tran_print("Mem[{}:{}] differs: sim = {}, ref = {}".format(
+                        addr_lo, addr_hi, sim_val, ref_val))
+    if not has_diffs:
+        tran_print("State matches reference file!")
 
 # Prints all the labels associated with the given .list file
 def print_labels():
@@ -1204,9 +1214,12 @@ def save_tran():
       tran_fh.write(transcript);
       tran_fh.close();
 
-# Takes a hexadecimal number as input and outputs a canonical form
-# The cacnonical form is a 4 digit uppercase hexadecimal number
+# Takes an integer as input and outputs a canonical form
+# The canonical form is a 4 digit uppercase hexadecimal number
 # Input can be 1 to 4 digits with any case.
+#
+# WARNING: If the number will take more than 4 hex digits, this function will
+# return a number with more than 4 digits!
 def to_4_digit_uc_hex(num):
    return ("%.4x" % num).upper();
 
