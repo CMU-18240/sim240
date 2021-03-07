@@ -40,8 +40,8 @@ whole (i.e. both student and staff branches).
 
 ```bash
 $ cd $BIN_DIR
-$ wget --no-check-certificate --content-disposition https://raw.githubusercontent.com/CMU-18240/as240/master/as240.py?token=AAJ2EC5F726VDXB2KIBIEQTAIVFVU
-$ mv as240.py\?token\=AAJ2EC5F726VDXB2KIBIEQTAIVFVU as240
+$ wget --no-check-certificate --content-disposition https://raw.githubusercontent.com/CMU-18240/sim240/master/sim240.py
+$ mv sim240.py sim240
 ```
 3. `cd` to the folder where the **staff** scripts should be deployed
 4. Clone the staff repo
