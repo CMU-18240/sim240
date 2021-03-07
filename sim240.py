@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 #!/usr/bin/env python
 
 # Simulator for RISC240
@@ -957,9 +956,7 @@ def check_state(state_file):
 def print_labels():
    for key in labels:
       if (len(key) > 0): # ignores spuriously created labels
-          tran_print(key + ": " + labels[key])
-          if (key == "VALID"):
-              fget_memory({"lo":labels[key]})
+         tran_print(key + ": " + labels[key]);
 
 
 
@@ -1105,7 +1102,7 @@ def alu(args):
 
       if (sign_bit_A and ~sign_bit_B):
          out = 1
-      elif (~sign_bit_A and sign_bit_B):
+      elif (~sign_bit_A and ~sign_bit_B):
          out = 0
       else:    # both are positive or both are negative
          if (sign_bit_A): #both are negative
@@ -1145,14 +1142,13 @@ def memory_sim(args):
    we = args["we"];
    data_in = args["data"];
    addr = args["addr"];
-   addr_aligned = word_align(addr);
 
    data_out = "0000"; # data_in would mimic bus more accurately...
-   if (re == "MEM_RD") and (addr_aligned in memory):
-      data_out = memory[addr_aligned][0];
+   if (re == "MEM_RD") and (addr in memory):
+      data_out = memory[addr][0];
    if (we == "MEM_WR"):
-      memory[addr_aligned][0] = data_in;
-      memory[addr_aligned][1] = 1;
+      memory[addr][0] = data_in;
+      memory[addr][1] = 1;
 
    return data_out;
 
