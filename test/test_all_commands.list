@@ -1,0 +1,91 @@
+addr data   label     opcode  operands
+---- ----  --------   ------  --------
+0100 3040  START      LI      R1      
+0102 0001                     $0001   
+0104 3080             LI      R2      
+0106 0002                     $0002   
+0108 30C0             LI      R3      
+010A FFFF                     $FFFF   
+010C 2900             LW      R4 R0   
+010E 0200                     DATA    
+0110 2950             LW      R5 R2   
+0112 0200                     DATA    
+0114 29A0             LW      R6 R4   
+0116 0206                     DATA4   
+0118 29C0             LW      R7 R0   
+011A 0206                     DATA4   
+011C A800             BRC             
+011E 0200                     DATA    
+0120 B800             BRV             
+0122 0200                     DATA    
+0124 9800             BRN             
+0126 0200                     DATA    
+0128 C800             BRZ             
+012A 0200                     DATA    
+012C D800             BRNZ            
+012E 0200                     DATA    
+0130 0055             ADD     R1 R2 R5
+0132 3128             ADDI    R4 R5   
+0134 1987                     $1987   
+0136 90AC             AND     R2 R5 R4
+0138 20D0             MV      R3 R2   
+013A 8170             NOT     R5 R6   
+013C C3B0             SLLI    R6 R6   
+013E 0008                     $08     
+0140 A1BE             OR      R6 R7 R6
+0142 C1C9             SLL     R7 R1 R1
+0144 50B2             SLT     R2 R6 R2
+0146 52E8             SLTI    R3 R5   
+0148 0007                     $07     
+014A F124             SRA     R4 R4 R4
+014C F368             SRAI    R5 R5   
+014E 0001                     $01     
+0150 E1A4             SRL     R6 R4 R4
+0152 E3C8             SRLI    R7 R1   
+0154 0006                     $06     
+0156 11AC             SUB     R6 R5 R4
+0158 3807             SW      R0 R7   
+015A 0208                     DEST    
+015C B18E             XOR     R6 R1 R6
+015E F800             BRA             
+0160 0164                     TGT1    
+0162 FE00             STOP            
+0164 3040  TGT1       LI      R1      
+0166 FFFF                     $FFFF   
+0168 9800             BRN             
+016A 016E                     TGT2    
+016C FE00             STOP            
+016E 3008  TGT2       ADDI    R0 R1   
+0170 0003                     $03     
+0172 A800             BRC             
+0174 0178                     TGT3    
+0176 FE00             STOP            
+0178 0000  TGT3       ADD     R0 R0 R0
+017A D800             BRNZ            
+017C 0180                     TGT4    
+017E FE00             STOP            
+0180 3040  TGT4       LI      R1      
+0182 FFFF                     $FFFF   
+0184 D800             BRNZ            
+0186 018A                     TGT5    
+0188 FE00             STOP            
+018A 3040  TGT5       LI      R1      
+018C 7FFF                     $7FFF   
+018E 3048             ADDI    R1 R1   
+0190 0003                     $0003   
+0192 B800             BRV             
+0194 0198                     TGT6    
+0196 FE00             STOP            
+0198 0000  TGT6       ADD     R0 R0 R0
+019A C800             BRZ             
+019C 01A0                     TGT7    
+019E FE00             STOP            
+01A0 3800  TGT7       SW      R0 R0   
+01A2 020A                     DEST2   
+01A4 FE00             STOP            
+0200 FFFE  DATA       .DW     $FFFE   
+0202 FF00             .DW     $FF00   
+0204 0019             .DW     $19     
+0206 0087  DATA4      .DW     $87     
+0208 0000  DEST       .DW     $00     
+020A FFFF  DEST2      .DW     $FFFF   
