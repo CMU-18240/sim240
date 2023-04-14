@@ -592,7 +592,7 @@ def init_p18240():
    for key in state:
       if (key == "regFile"):
          for i in xrange(8):
-            state["regFile"][i] = 0;
+            state["regFile"][i] = '0000';
       elif (match("[ZNCV]", key)):
          state[key] = "0";
       elif (key == "STATE"):
