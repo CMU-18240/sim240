@@ -825,6 +825,7 @@ def set_reg(reg_name, value):
 def get_reg(reg_name):
    reg_name = reg_name.upper();
    if (reg_name == "*"):
+      tran_print(wide_header);
       tran_print(get_state());
    elif (reg_name == "R*"):
       print_regfile();
