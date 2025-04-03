@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Change Log:
-# 3.0.1 - Changed shebang to be the generic python3
+# 3.1 - Added support to .coe files. (vsetty)
 # 3.0 - Updated to RISC240, wan 30 Mar 2019
 # 2.11 - Updated .DW to take a label or a hex operand (nryan)
 # 2.1 - Updated print formats for list file to allow 8 character labels
@@ -1159,6 +1159,11 @@ def parse_command_line():
                       metavar = 'MIF_FILE',
                       help = 'Output memory in mif format to MIF_FILE',
                       default='memory.mif')
+    parser.add_option('--coefilename',
+                      dest='coe_file',
+                      metavar = 'COE_FILE',
+                      help = 'Output memory in coe format to COE_FILE',
+                      default='memory.coe')
 
     (options, args) = parser.parse_args()
     if len(args) > 1:
@@ -1195,16 +1200,21 @@ def parse_command_line():
             file_mif = open(options.mif_file, 'w')
         else:
             file_mif = open('/dev/null', 'w')
+        if options.coe_file:
+            file_mif = open(options.coe_file, 'w')
+        else:
+            file_mif = open('/dev/null', 'w')
     else:
         file_list = open(options.lfile, 'w')
         file_mem = open(options.mfile, 'w')
         file_mif = open(options.mif_file, 'w')
+        file_coe = open(options.coe_file, 'w')
         if options.sfile :
             file_sym = open(options.sfile, 'w')
         else:
             file_sym = open('/dev/null', 'w')
 
-    return [file_asm, file_list, file_mem, file_sym, file_mif]
+    return [file_asm, file_list, file_mem, file_sym, file_mif, file_coe]
 
 
 def create_mem_file(mem_file, locs):
@@ -1227,9 +1237,7 @@ def create_mif_file(mif_file, locs):
     sorter = lambda x : x[0]
     locs = sorted(locs, key=sorter)
 
-    #NOTE: Changed DEPTH to be full range of 16-bit address space (ekusuma)
-    #   May need to revert this when changing back to Cyclone IV E
-    header = """DEPTH = 65536;         % Memory depth and width are required   %
+    header = """DEPTH = 1024;          % Memory depth and width are required   %
                                        % DEPTH is the number of addresses      %
                 WIDTH = 16;            % WIDTH is the number of bits of data per word %
                 %  DEPTH and WIDTH should be entered as decimal numbers        %
@@ -1247,9 +1255,46 @@ def create_mif_file(mif_file, locs):
         print('{:04X} : {:04X};'.format(addr, val), file=mif_file)
     print('END;', file=mif_file)
 
+
+#    Memory File compatible with Vivado's Block Memory Generator
+#    (vsetty)
+
+def create_coe_file(coe_file, locs):
+    sorter = lambda x : x[0]
+    locs = sorted(locs, key=sorter)
+    max_addr = locs[-1][0]
+
+    header = """; RISC240 MEMORY FILE\nmemory_initialization_radix=16;\nmemory_initialization_vector ="""
+    print(header, file=coe_file)
+
+
+    for addr_itr in range(max_addr):
+        value_itr = next((value_itr for addr, value_itr in locs if addr == addr_itr), 0) #value = 0 if not found.
+        print('{:04X},'.format(value_itr), file=coe_file)
+
+    final_value = locs[-1][0]
+    print('{:04X};'.format(final_value), file=coe_file)
+
+    '''
+    for curr_addr in range(max_addr):
+        exists = any(curr_addr in loc for loc in locs) # dear lord
+        if exists:
+            print('{:04X},'.format(locs[curr_addr][1]), file=coe_file)
+        else:
+            print('0,', file=coe_file)
+
+    print('{:04X};'.format(locs[-1][1]), file=coe_file)
+    '''
+    '''
+    for i, (addr, val) in enumerate(locs):
+        if i == len(locs) - 1:
+            print('{:04X};'.format(val), file=coe_file)
+        else:
+            print('{:04X},'.format(val), file=coe_file)
+    '''
 def main():
 
-    (file_asm, file_list, file_mem, file_sym, file_mif) =  parse_command_line()
+    (file_asm, file_list, file_mem, file_sym, file_mif, file_coe) =  parse_command_line()
 
     line_number = 1
     mem_address = None  # In case there is no .ORG statement, need to detect
@@ -1292,6 +1337,7 @@ def main():
 
     create_mem_file(file_mem, mem_locs);
     create_mif_file(file_mif, mem_locs);
+    create_coe_file(file_coe, mem_locs);
 
     file_list.close()
     file_mem.close()
