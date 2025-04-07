@@ -1275,23 +1275,6 @@ def create_coe_file(coe_file, locs):
     final_value = locs[-1][0]
     print('{:04X};'.format(final_value), file=coe_file)
 
-    '''
-    for curr_addr in range(max_addr):
-        exists = any(curr_addr in loc for loc in locs) # dear lord
-        if exists:
-            print('{:04X},'.format(locs[curr_addr][1]), file=coe_file)
-        else:
-            print('0,', file=coe_file)
-
-    print('{:04X};'.format(locs[-1][1]), file=coe_file)
-    '''
-    '''
-    for i, (addr, val) in enumerate(locs):
-        if i == len(locs) - 1:
-            print('{:04X};'.format(val), file=coe_file)
-        else:
-            print('{:04X},'.format(val), file=coe_file)
-    '''
 def main():
 
     (file_asm, file_list, file_mem, file_sym, file_mif, file_coe) =  parse_command_line()
