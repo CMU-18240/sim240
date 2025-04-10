@@ -1272,8 +1272,8 @@ def create_coe_file(coe_file, locs):
         value_itr = next((value_itr for addr, value_itr in locs if addr == addr_itr), 0) #value = 0 if not found.
         print('{:04X},'.format(value_itr), file=coe_file)
 
-    final_value = locs[-1][0]
-    print('{:04X};'.format(final_value), file=coe_file)
+    final_value = locs[-1][1]
+    print('{:04X},\n0000;'.format(final_value), file=coe_file)
 
 def main():
 
